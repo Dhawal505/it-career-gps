@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Career GPS — Find Your Path</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafaf8;
+    --white: #ffffff;
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --accent-dark: #1d4ed8;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow: 0 4px 16px rgba(0,0,0,0.08);
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+  /* Topbar */
+  .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .topbar-brand { font-family: 'Lora', serif; font-weight: 700; font-size: 18px; color: var(--text); }
+  .topbar-brand span { color: var(--accent); }
+  .topbar-tag { font-size: 12px; color: var(--green); background: var(--green-light); border: 1px solid #bbf7d0; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+
+  /* Page */
+  .page { max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; }
+
+  /* Hero */
+  .hero { margin-bottom: 44px; animation: fadeUp 0.5s ease both; }
+  .hero h1 { font-family: 'Lora', serif; font-size: clamp(30px, 5vw, 42px); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 14px; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { font-size: 15px; color: var(--muted); line-height: 1.7; max-width: 480px; }
+
+  /* Progress */
+  .progress-wrap { margin-bottom: 36px; animation: fadeUp 0.5s ease 0.1s both; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 8px; }
+  .progress-track { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.4s cubic-bezier(0.4,0,0.2,1); }
+
+  /* Steps */
+  .step { display: none; animation: fadeUp 0.35s ease both; }
+  .step.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .step-label { font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .step-q { font-family: 'Lora', serif; font-size: clamp(20px, 3.5vw, 26px); font-weight: 600; line-height: 1.3; margin-bottom: 24px; }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .opt { display: flex; align-items: center; gap: 14px; background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px 18px; cursor: pointer; transition: all 0.18s ease; box-shadow: var(--shadow-sm); user-select: none; }
+  .opt:hover { border-color: var(--accent); background: var(--accent-light); transform: translateX(3px); }
+  .opt.selected { border-color: var(--accent); background: var(--accent-light); }
+  .opt-icon { font-size: 22px; flex-shrink: 0; width: 36px; text-align: center; }
+  .opt-content { flex: 1; }
+  .opt-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .opt-sub { font-size: 12px; color: var(--muted); }
+  .opt-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.18s ease; }
+  .opt.selected .opt-radio { border-color: var(--accent); background: var(--accent); }
+  .opt.selected .opt-radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: white; }
+
+  /* Buttons */
+  .btn-row { display: flex; gap: 10px; align-items: center; }
+  .btn { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.18s ease; }
+  .btn-primary { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(37,99,235,0.25); }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,0.3); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: #9ca3af; }
+
+  /* Loading */
+  .loading { display: none; text-align: center; padding: 80px 0; animation: fadeUp 0.4s ease both; }
+  .loading.active { display: block; }
+  .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 20px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading h3 { font-family: 'Lora', serif; font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+  .loading p { font-size: 13px; color: var(--muted); }
+
+  /* Result */
+  #result { display: none; animation: fadeUp 0.5s ease both; }
+  .result-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 20px; box-shadow: var(--shadow); }
+  .result-card.accent-top { border-top: 3px solid var(--accent); }
+  .result-eyebrow { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 8px; }
+  .result-role { font-family: 'Lora', serif; font-size: clamp(24px, 4vw, 34px); font-weight: 700; line-height: 1.2; margin-bottom: 12px; letter-spacing: -0.3px; }
+  .result-desc { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 20px; }
+  .salary-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .sal-box { flex: 1; min-width: 120px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .sal-label { font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .sal-val { font-size: 17px; font-weight: 700; color: var(--green); font-family: 'Lora', serif; }
+
+  /* Section */
+  .section-head { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+  /* Skills */
+  .skills-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+  .skill-tag { display: flex; align-items: center; gap: 6px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 7px 12px; font-size: 13px; font-weight: 500; transition: all 0.15s; }
+  .skill-tag:hover { border-color: #9ca3af; transform: translateY(-1px); }
+  .skill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .skill-badge { font-size: 10px; background: var(--accent-light); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 1.5px; background: var(--border); }
+  .t-item { position: relative; margin-bottom: 18px; animation: fadeUp 0.4s ease both; }
+  .t-item:nth-child(1){animation-delay:0.05s}.t-item:nth-child(2){animation-delay:0.1s}.t-item:nth-child(3){animation-delay:0.15s}.t-item:nth-child(4){animation-delay:0.2s}.t-item:nth-child(5){animation-delay:0.25s}.t-item:nth-child(6){animation-delay:0.3s}
+  .t-dot { position: absolute; left: -20px; top: 14px; width: 13px; height: 13px; border-radius: 50%; background: var(--white); border: 2px solid var(--accent); }
+  .t-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; box-shadow: var(--shadow-sm); transition: box-shadow 0.15s; }
+  .t-card:hover { box-shadow: var(--shadow); }
+  .t-month { font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 0.5px; margin-bottom: 4px; text-transform: uppercase; }
+  .t-title { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+  .t-detail { font-size: 13px; color: var(--muted); line-height: 1.65; margin-bottom: 10px; }
+  .t-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .t-tag { font-size: 11px; background: var(--accent-light); color: var(--accent); padding: 3px 8px; border-radius: 4px; font-weight: 500; }
+
+  /* Resources */
+  .resources { display: flex; flex-direction: column; gap: 10px; }
+  .res-card { display: flex; align-items: center; gap: 14px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; text-decoration: none; color: var(--text); box-shadow: var(--shadow-sm); transition: all 0.18s; }
+  .res-card:hover { border-color: var(--accent); transform: translateX(4px); box-shadow: var(--shadow); }
+  .res-icon { width: 40px; height: 40px; border-radius: 8px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .res-body { flex: 1; }
+  .res-type { font-size: 10px; color: var(--green); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .res-name { font-size: 14px; font-weight: 600; margin: 2px 0; }
+  .res-desc { font-size: 12px; color: var(--muted); }
+  .res-arrow { font-size: 16px; color: var(--muted); }
+
+  /* CTA */
+  .cta { background: linear-gradient(135deg, #eff6ff, #f0fdf4); border: 1px solid #bfdbfe; border-radius: 16px; padding: 32px; text-align: center; margin-top: 24px; }
+  .cta h3 { font-family: 'Lora', serif; font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+  .cta p { font-size: 14px; color: var(--muted); margin-bottom: 22px; line-height: 1.7; }
+  .btn-restart { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; padding: 10px 22px; border-radius: 8px; background: var(--white); color: var(--accent); border: 1.5px solid var(--accent); cursor: pointer; transition: all 0.18s; }
+  .btn-restart:hover { background: var(--accent-light); }
+
+  /* Footer */
+  .footer { text-align: center; padding: 48px 0 0; font-size: 12px; color: #d1d5db; }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="topbar">
+  <div class="topbar-brand">IT Career <span>GPS</span></div>
+  <div class="topbar-tag">✓ Free — No Sign Up Required</div>
+</nav>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero" id="hero">
+    <h1>Build Your <span>IT Career</span><br>Roadmap</h1>
+    <p>Answer 4 quick questions and receive a personalized 6-month learning plan — tailored to your domain, experience level, and career goal. Completely free.</p>
+  </div>
+
+  <!-- Quiz -->
+  <div id="quiz">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span id="prog-label">Step 1 of 4</span>
+        <span id="prog-pct">25%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="prog-fill" style="width:25%"></div>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step active" id="step-1">
+      <div class="step-label">Question 1 of 4</div>
+      <div class="step-q">What is your current experience level in IT?</div>
+      <div class="options">
+        <div class="opt" onclick="pick('level','beginner',this)">
+          <div class="opt-icon">🌱</div>
+          <div class="opt-content"><div class="opt-title">Beginner</div><div class="opt-sub">0–1 year — currently learning the fundamentals</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('level','junior',this)">
+          <div class="opt-icon">⚡</div>
+          <div class="opt-content"><div class="opt-title">Junior</div><div class="opt-sub">1–3 years — working on real projects with guidance</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('level','mid',this)">
+          <div class="opt-icon">🔥</div>
+          <div class="opt-content"><div class="opt-title">Mid-Level</div><div class="opt-sub">3–6 years — delivering work independently</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('level','senior',this)">
+          <div class="opt-icon">🚀</div>
+          <div class="opt-content"><div class="opt-title">Senior+</div><div class="opt-sub">6+ years — leading teams and driving decisions</div></div>
+          <div class="opt-radio"></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="n1" onclick="next(2)" disabled>Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step" id="step-2">
+      <div class="step-label">Question 2 of 4</div>
+      <div class="step-q">Which IT domain interests you the most?</div>
+      <div class="options">
+        <div class="opt" onclick="pick('domain','webdev',this)">
+          <div class="opt-icon">🌐</div>
+          <div class="opt-content"><div class="opt-title">Web Development</div><div class="opt-sub">Frontend, Backend, Full Stack</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('domain','data',this)">
+          <div class="opt-icon">📊</div>
+          <div class="opt-content"><div class="opt-title">Data Science / AI</div><div class="opt-sub">Machine Learning, Analytics, Data Engineering</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('domain','devops',this)">
+          <div class="opt-icon">☁️</div>
+          <div class="opt-content"><div class="opt-title">DevOps / Cloud</div><div class="opt-sub">AWS, Docker, CI/CD, Infrastructure</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('domain','mobile',this)">
+          <div class="opt-icon">📱</div>
+          <div class="opt-content"><div class="opt-title">Mobile Development</div><div class="opt-sub">Flutter, React Native, Android, iOS</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('domain','security',this)">
+          <div class="opt-icon">🔐</div>
+          <div class="opt-content"><div class="opt-title">Cybersecurity</div><div class="opt-sub">Ethical Hacking, VAPT, SOC Analysis</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('domain','testing',this)">
+          <div class="opt-icon">🧪</div>
+          <div class="opt-content"><div class="opt-title">QA / Testing</div><div class="opt-sub">Manual Testing, Automation, Performance</div></div>
+          <div class="opt-radio"></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="back(1)">← Back</button>
+        <button class="btn btn-primary" id="n2" onclick="next(3)" disabled>Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step" id="step-3">
+      <div class="step-label">Question 3 of 4</div>
+      <div class="step-q">What is your primary career goal for the next 6 months?</div>
+      <div class="options">
+        <div class="opt" onclick="pick('goal','newjob',this)">
+          <div class="opt-icon">💼</div>
+          <div class="opt-content"><div class="opt-title">Switch Jobs</div><div class="opt-sub">Move to a better company or role</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('goal','hike',this)">
+          <div class="opt-icon">💰</div>
+          <div class="opt-content"><div class="opt-title">Salary Hike / Promotion</div><div class="opt-sub">Grow within my current organisation</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('goal','freelance',this)">
+          <div class="opt-icon">🌍</div>
+          <div class="opt-content"><div class="opt-title">Start Freelancing</div><div class="opt-sub">Work with international clients independently</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('goal','abroad',this)">
+          <div class="opt-icon">✈️</div>
+          <div class="opt-content"><div class="opt-title">Land an Overseas Role</div><div class="opt-sub">Opportunities in the US, Canada, or Europe</div></div>
+          <div class="opt-radio"></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="back(2)">← Back</button>
+        <button class="btn btn-primary" id="n3" onclick="next(4)" disabled>Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step" id="step-4">
+      <div class="step-label">Question 4 of 4</div>
+      <div class="step-q">How much time can you dedicate to learning each day?</div>
+      <div class="options">
+        <div class="opt" onclick="pick('time','30min',this)">
+          <div class="opt-icon">⏱️</div>
+          <div class="opt-content"><div class="opt-title">30 Minutes / Day</div><div class="opt-sub">Busy schedule — small, consistent sessions</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('time','1hr',this)">
+          <div class="opt-icon">⏰</div>
+          <div class="opt-content"><div class="opt-title">1 Hour / Day</div><div class="opt-sub">Steady pace — manageable on weekdays</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('time','2hr',this)">
+          <div class="opt-icon">🕐</div>
+          <div class="opt-content"><div class="opt-title">2+ Hours / Day</div><div class="opt-sub">Focused mode — accelerated progress</div></div>
+          <div class="opt-radio"></div>
+        </div>
+        <div class="opt" onclick="pick('time','weekend',this)">
+          <div class="opt-icon">📅</div>
+          <div class="opt-content"><div class="opt-title">Weekends Only</div><div class="opt-sub">3–4 dedicated hours on Saturday & Sunday</div></div>
+          <div class="opt-radio"></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="back(3)">← Back</button>
+        <button class="btn btn-primary" id="n4" onclick="generate()" disabled>Generate My Roadmap →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <h3>Building Your Roadmap...</h3>
+    <p>Personalising your plan — just a moment</p>
+  </div>
+
+  <!-- Result -->
+  <div id="result"></div>
+
+  <div class="footer">Built for India's IT community · Free, always.</div>
+</div>
+
+<script>
+const ans = {};
+
+function pick(k, v, el) {
+  el.parentElement.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  ans[k] = v;
+  const m = { level:'n1', domain:'n2', goal:'n3', time:'n4' };
+  document.getElementById(m[k]).disabled = false;
+}
+
+function next(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-'+n).classList.add('active');
+  setProg(n);
+  scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function back(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-'+n).classList.add('active');
+  setProg(n);
+  scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setProg(n) {
+  const p = Math.round((n / 4) * 100);
+  document.getElementById('prog-fill').style.width = p + '%';
+  document.getElementById('prog-label').textContent = 'Step ' + n + ' of 4';
+  document.getElementById('prog-pct').textContent = p + '%';
+}
+
+function generate() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('hero').style.display = 'none';
+  document.getElementById('loading').classList.add('active');
+  setTimeout(showResult, 1800);
+}
+
+// ── Data ────────────────────────────────────────────────────────────
+const DB = {
+  webdev: {
+    beginner: {
+      title: "Full Stack Developer",
+      desc: "Web development remains the highest-demand skill in India's IT market. Starting from the fundamentals and progressing to React and Node.js, you can be job-ready within 6 months with consistent practice.",
+      entry: "₹3–6 LPA", exp: "₹8–18 LPA",
+      skills: [
+        {n:"HTML & CSS",c:"#f59e0b",p:"Essential"},{n:"JavaScript",c:"#2563eb",p:"Essential"},
+        {n:"React.js",c:"#06b6d4",p:"High Priority"},{n:"Node.js",c:"#16a34a",p:"Medium"},
+        {n:"Git & GitHub",c:"#7c3aed",p:"Essential"},{n:"SQL Basics",c:"#dc2626",p:"Medium"}
+      ],
+      timeline: [
+        {m:"Month 1",t:"HTML, CSS & Version Control",d:"Build small projects daily — a portfolio page, a landing page. Follow FreeCodeCamp's structured curriculum for guided learning.",tags:["HTML","CSS","Git"]},
+        {m:"Month 2",t:"JavaScript — Core Concepts",d:"Master functions, arrays, DOM manipulation, and the Fetch API. JavaScript.info is the most comprehensive free resource available.",tags:["JavaScript","DOM","APIs"]},
+        {m:"Month 3",t:"React.js — Component-Based UI",d:"Learn components, props, state, and hooks. Build a to-do app and a weather application to solidify your understanding.",tags:["React","Hooks","Components"]},
+        {m:"Month 4",t:"Node.js & Backend Development",d:"Set up an Express server, design REST APIs, and connect a MongoDB database. Build a complete CRUD application end-to-end.",tags:["Node.js","Express","MongoDB"]},
+        {m:"Month 5",t:"Portfolio & Project Deployment",d:"Publish 3 complete projects on GitHub. Deploy them live using Vercel or Netlify. Write clear README files for each.",tags:["Portfolio","Deployment"]},
+        {m:"Month 6",t:"Interview Preparation & Applications",d:"Practise DSA fundamentals and solve 50 LeetCode Easy problems. Optimise your LinkedIn profile and begin applying consistently.",tags:["DSA","LeetCode","Applications"]}
+      ],
+      resources: [
+        {icon:"📘",type:"Free Course",n:"The Odin Project",d:"The most comprehensive free full stack curriculum",url:"https://theodinproject.com"},
+        {icon:"🎓",type:"Free Course",n:"FreeCodeCamp",d:"Structured learning path with certificates",url:"https://freecodecamp.org"},
+        {icon:"📖",type:"Reference",n:"JavaScript.info",d:"The definitive free JavaScript guide",url:"https://javascript.info"},
+        {icon:"💻",type:"Practice",n:"Frontend Mentor",d:"Real-world UI challenges for hands-on practice",url:"https://frontendmentor.io"}
+      ]
+    },
+    mid: {
+      title: "Senior Full Stack Developer",
+      desc: "You already have the experience — now it's time to add system design, TypeScript, and cloud infrastructure to your skillset. These are the capabilities that command ₹30L+ packages and senior-level titles.",
+      entry: "₹15–25 LPA", exp: "₹30–50 LPA",
+      skills: [
+        {n:"TypeScript",c:"#3b82f6",p:"Essential"},{n:"System Design",c:"#f59e0b",p:"Essential"},
+        {n:"AWS / Cloud",c:"#f97316",p:"High Priority"},{n:"Docker",c:"#06b6d4",p:"High Priority"},
+        {n:"Redis / Caching",c:"#dc2626",p:"Medium"},{n:"Testing (Jest)",c:"#7c3aed",p:"Medium"}
+      ],
+      timeline: [
+        {m:"Month 1",t:"TypeScript & Advanced Patterns",d:"Learn generics, decorators, and architectural design patterns. Writing type-safe code is a baseline expectation at senior level.",tags:["TypeScript","Design Patterns"]},
+        {m:"Month 2",t:"System Design Fundamentals",d:"Study load balancers, caching strategies, and database scaling. Work through Grokking the System Design Interview.",tags:["System Design","Scalability"]},
+        {m:"Month 3",t:"AWS Core Services",d:"Gain hands-on experience with EC2, S3, Lambda, and RDS using the AWS Free Tier. Cloud knowledge is now a standard requirement.",tags:["AWS","Cloud","Lambda"]},
+        {m:"Month 4",t:"Docker & CI/CD Pipelines",d:"Containerise your applications and automate deployments using GitHub Actions. This reflects modern engineering practices.",tags:["Docker","CI/CD"]},
+        {m:"Month 5",t:"Open Source & Side Project",d:"Contribute to open source on GitHub. Build a small SaaS tool and bring in real users — this accelerates your credibility.",tags:["Open Source","SaaS"]},
+        {m:"Month 6",t:"Senior-Level Interview Preparation",d:"Practise HLD and LLD problems, prepare for behavioural interviews, and research salary negotiation strategies.",tags:["Interview Prep","Negotiation"]}
+      ],
+      resources: [
+        {icon:"📐",type:"Book",n:"Grokking System Design",d:"The leading resource for system design interviews",url:"https://designgurus.io"},
+        {icon:"☁️",type:"Free",n:"AWS Free Tier",d:"Hands-on cloud practice at no cost",url:"https://aws.amazon.com/free"},
+        {icon:"💻",type:"Practice",n:"LeetCode",d:"Daily algorithmic problem-solving practice",url:"https://leetcode.com"},
+        {icon:"✍️",type:"Community",n:"Dev.to",d:"Publish articles to build your personal brand",url:"https://dev.to"}
+      ]
+    }
+  },
+  data: {
+    beginner: {
+      title: "Data Analyst / ML Engineer",
+      desc: "AI and data roles are experiencing explosive growth across India. The path begins with Python and SQL, progressing to machine learning — a domain with excellent long-term career prospects.",
+      entry: "₹4–8 LPA", exp: "₹12–25 LPA",
+      skills: [
+        {n:"Python",c:"#f59e0b",p:"Essential"},{n:"Pandas & NumPy",c:"#2563eb",p:"Essential"},
+        {n:"SQL",c:"#16a34a",p:"Essential"},{n:"Machine Learning",c:"#7c3aed",p:"High Priority"},
+        {n:"Power BI / Tableau",c:"#f97316",p:"Medium"},{n:"Statistics",c:"#dc2626",p:"Essential"}
+      ],
+      timeline: [
+        {m:"Month 1",t:"Python Programming Fundamentals",d:"Cover variables, loops, functions, and OOP concepts. The official Python.org tutorial is an excellent structured starting point.",tags:["Python","Fundamentals"]},
+        {m:"Month 2",t:"Data Manipulation & Visualisation",d:"Master Pandas, NumPy, and Matplotlib. Practise exploratory data analysis on Kaggle datasets.",tags:["Pandas","NumPy","EDA"]},
+        {m:"Month 3",t:"SQL & Relational Databases",d:"Build proficiency with SELECT, JOIN, and subqueries. Mode Analytics offers a free, practical SQL course.",tags:["SQL","Databases"]},
+        {m:"Month 4",t:"Statistics & Machine Learning Basics",d:"Study regression, classification, and scikit-learn. Audit Andrew Ng's Machine Learning course on Coursera for free.",tags:["Statistics","ML","scikit-learn"]},
+        {m:"Month 5",t:"Kaggle Competitions",d:"Enter 2–3 beginner competitions. Share your notebooks publicly — this demonstrates practical skill to employers.",tags:["Kaggle","Projects"]},
+        {m:"Month 6",t:"Portfolio & Job Applications",d:"Publish 2–3 end-to-end projects on GitHub. Optimise your LinkedIn profile and apply to relevant roles.",tags:["Portfolio","Applications"]}
+      ],
+      resources: [
+        {icon:"📊",type:"Free Course",n:"Kaggle Learn",d:"The best free data science micro-courses",url:"https://kaggle.com/learn"},
+        {icon:"🎓",type:"Free Course",n:"CS50P — Python",d:"Harvard University's free Python course",url:"https://cs50.harvard.edu/python"},
+        {icon:"🗄️",type:"Practice",n:"Mode SQL Tutorial",d:"SQL practice with real-world datasets",url:"https://mode.com/sql-tutorial"},
+        {icon:"📝",type:"Community",n:"Towards Data Science",d:"Read and publish data science articles",url:"https://towardsdatascience.com"}
+      ]
+    },
+    mid: {
+      title: "Senior Data Scientist / ML Lead",
+      desc: "Deep learning, MLOps, and Generative AI are the skills that separate senior roles from mid-level ones. These capabilities are rare in India — and the compensation reflects that scarcity.",
+      entry: "₹20–35 LPA", exp: "₹40–80 LPA",
+      skills: [
+        {n:"Deep Learning",c:"#f59e0b",p:"Essential"},{n:"PyTorch / TensorFlow",c:"#dc2626",p:"Essential"},
+        {n:"MLOps",c:"#2563eb",p:"High Priority"},{n:"LLMs / Generative AI",c:"#7c3aed",p:"High Priority"},
+        {n:"Spark / Big Data",c:"#f97316",p:"Medium"},{n:"Cloud ML (AWS/GCP)",c:"#16a34a",p:"High Priority"}
+      ],
+      timeline: [
+        {m:"Month 1",t:"Deep Learning Foundations",d:"Study neural networks, CNNs, and RNNs in depth. The fast.ai free course is widely regarded as the best entry point.",tags:["Deep Learning","PyTorch"]},
+        {m:"Month 2",t:"Large Language Models & GenAI",d:"Explore Hugging Face, LangChain, and fine-tuning techniques. This is the highest-demand skill in the current market.",tags:["LLMs","GenAI","Hugging Face"]},
+        {m:"Month 3",t:"MLOps & Production Pipelines",d:"Learn MLflow, DVC, model deployment, and monitoring. Production-grade ML is what separates seniors from juniors.",tags:["MLOps","MLflow","Deployment"]},
+        {m:"Month 4",t:"Big Data Engineering",d:"Work through Apache Spark basics using the Databricks free tier.",tags:["Spark","Big Data","Databricks"]},
+        {m:"Month 5",t:"Research & Open Source Contributions",d:"Implement a paper from ArXiv and publish it on GitHub. Academic credibility opens doors to top-tier roles.",tags:["Research","Open Source"]},
+        {m:"Month 6",t:"Senior & FAANG-Level Interviews",d:"Prepare for ML system design rounds, technical case studies, and compensation negotiation.",tags:["Interview Prep","FAANG"]}
+      ],
+      resources: [
+        {icon:"🧠",type:"Free Course",n:"Fast.ai",d:"The best free deep learning course available",url:"https://fast.ai"},
+        {icon:"🤗",type:"Free",n:"Hugging Face",d:"LLM models, datasets, and free courses",url:"https://huggingface.co"},
+        {icon:"🏆",type:"Practice",n:"Kaggle Competitions",d:"Real-world ML competitions with prize money",url:"https://kaggle.com/competitions"},
+        {icon:"📄",type:"Research",n:"ArXiv.org",d:"Free access to the latest ML research papers",url:"https://arxiv.org"}
+      ]
+    }
+  },
+  devops: {
+    beginner: {
+      title: "DevOps / Cloud Engineer",
+      desc: "Cloud engineering is one of the fastest-growing disciplines in IT. With a focused approach to Linux, AWS, and Docker, an entry-level cloud role is an achievable 6-month target.",
+      entry: "₹5–10 LPA", exp: "₹15–30 LPA",
+      skills: [
+        {n:"Linux Fundamentals",c:"#f59e0b",p:"Essential"},{n:"Git & GitHub",c:"#7c3aed",p:"Essential"},
+        {n:"Docker",c:"#2563eb",p:"Essential"},{n:"AWS Fundamentals",c:"#f97316",p:"High Priority"},
+        {n:"Bash Scripting",c:"#16a34a",p:"High Priority"},{n:"CI/CD Basics",c:"#dc2626",p:"Medium"}
+      ],
+      timeline: [
+        {m:"Month 1",t:"Linux & Bash Foundations",d:"Install Ubuntu and practise command-line operations daily. The OverTheWire Bandit game makes learning Linux genuinely engaging.",tags:["Linux","Bash"]},
+        {m:"Month 2",t:"Git & Networking Fundamentals",d:"Master advanced Git workflows and understand HTTP, DNS, and TCP/IP — the foundation of all DevOps work.",tags:["Git","Networking"]},
+        {m:"Month 3",t:"Docker & Containerisation",d:"Learn to build, run, and compose Docker containers. Containerise a Node.js application as your practice project.",tags:["Docker","Containers"]},
+        {m:"Month 4",t:"AWS Core Services",d:"Work hands-on with EC2, S3, VPC, IAM, and RDS using the AWS Free Tier. Document everything you build.",tags:["AWS","Cloud Infrastructure"]},
+        {m:"Month 5",t:"CI/CD & Introduction to Kubernetes",d:"Build a GitHub Actions deployment pipeline. Set up a local Kubernetes cluster using Minikube.",tags:["CI/CD","Kubernetes"]},
+        {m:"Month 6",t:"AWS Certification & Applications",d:"Pursue the AWS Cloud Practitioner certification. This credential provides instant credibility with hiring managers.",tags:["AWS Certification","Interview"]}
+      ],
+      resources: [
+        {icon:"☁️",type:"Free",n:"AWS Free Tier",d:"Hands-on cloud practice at no cost",url:"https://aws.amazon.com/free"},
+        {icon:"🐧",type:"Free",n:"Linux Journey",d:"Interactive Linux learning for beginners",url:"https://linuxjourney.com"},
+        {icon:"🛠️",type:"Practice",n:"KodeKloud",d:"Hands-on DevOps labs with a free tier",url:"https://kodekloud.com"},
+        {icon:"📋",type:"Cert Prep",n:"ExamPro AWS",d:"Free preparation for AWS certifications",url:"https://exampro.co"}
+      ]
+    },
+    mid: {
+      title: "Senior DevOps / SRE Engineer",
+      desc: "Kubernetes at scale, Terraform, and Site Reliability Engineering are the skills that distinguish senior engineers. Demand for professionals at this level significantly exceeds supply in India.",
+      entry: "₹20–35 LPA", exp: "₹40–70 LPA",
+      skills: [
+        {n:"Kubernetes (Advanced)",c:"#2563eb",p:"Essential"},{n:"Terraform / IaC",c:"#7c3aed",p:"Essential"},
+        {n:"Prometheus & Grafana",c:"#f59e0b",p:"High Priority"},{n:"Multi-Cloud",c:"#f97316",p:"High Priority"},
+        {n:"DevSecOps",c:"#dc2626",p:"Medium"},{n:"SRE Practices",c:"#16a34a",p:"High Priority"}
+      ],
+      timeline: [
+        {m:"Month 1",t:"Advanced Kubernetes",d:"Master Helm, RBAC, and custom controllers. Begin preparing for the CKA (Certified Kubernetes Administrator) exam.",tags:["Kubernetes","Helm","CKA"]},
+        {m:"Month 2",t:"Terraform & Infrastructure as Code",d:"Provision a complete AWS environment using Terraform. IaC proficiency is a requirement at the senior level.",tags:["Terraform","IaC"]},
+        {m:"Month 3",t:"Monitoring & Observability",d:"Implement Prometheus, Grafana, and the ELK stack. Build production-grade dashboards and alerting systems.",tags:["Prometheus","Grafana","ELK"]},
+        {m:"Month 4",t:"DevSecOps",d:"Integrate SAST, DAST, container scanning, and secrets management into your pipelines.",tags:["Security","DevSecOps"]},
+        {m:"Month 5",t:"SRE Principles",d:"Apply SLI/SLO/SLA frameworks and practise incident management and chaos engineering.",tags:["SRE","Reliability"]},
+        {m:"Month 6",t:"CKA Certification & Senior Interviews",d:"Sit the Kubernetes Administrator exam. Prepare for system design interviews tailored to DevOps roles.",tags:["CKA","Interview Prep"]}
+      ],
+      resources: [
+        {icon:"🏅",type:"Certification",n:"CKA — Linux Foundation",d:"The gold standard Kubernetes certification",url:"https://training.linuxfoundation.org"},
+        {icon:"🏗️",type:"Free",n:"Terraform Documentation",d:"Official Terraform learning resources",url:"https://developer.hashicorp.com"},
+        {icon:"📗",type:"Free Book",n:"Google SRE Book",d:"Google's Site Reliability Engineering book — free online",url:"https://sre.google/books"},
+        {icon:"🛠️",type:"Practice",n:"KodeKloud",d:"Advanced DevOps hands-on labs",url:"https://kodekloud.com"}
+      ]
+    }
+  },
+  mobile: {
+    beginner: {
+      title: "Mobile App Developer",
+      desc: "Flutter enables you to build for Android and iOS from a single codebase. Mobile development demand in India is growing steadily, and publishing real apps is the fastest path to employment.",
+      entry: "₹4–8 LPA", exp: "₹12–22 LPA",
+      skills: [
+        {n:"Dart & Flutter",c:"#54c5f8",p:"Essential"},{n:"State Management",c:"#7c3aed",p:"Essential"},
+        {n:"REST API Integration",c:"#2563eb",p:"High Priority"},{n:"Firebase",c:"#f59e0b",p:"High Priority"},
+        {n:"Play Store Deployment",c:"#16a34a",p:"Medium"},{n:"Git",c:"#dc2626",p:"Essential"}
+      ],
+      timeline: [
+        {m:"Month 1",t:"Dart Language & Flutter Setup",d:"Install Flutter and learn Dart fundamentals. The official flutter.dev tutorials provide a well-structured learning path.",tags:["Dart","Flutter","Setup"]},
+        {m:"Month 2",t:"Flutter UI & Navigation",d:"Build with widgets, layouts, and navigation. Clone the UI of a popular app to develop your design instincts.",tags:["Widgets","UI","Navigation"]},
+        {m:"Month 3",t:"State Management",d:"Implement Provider or Riverpod in a complete notes or task management application.",tags:["Provider","Riverpod","State"]},
+        {m:"Month 4",t:"REST APIs & Firebase",d:"Integrate live data via REST APIs and connect Firebase Authentication and Firestore to your application.",tags:["REST API","Firebase","Auth"]},
+        {m:"Month 5",t:"Publish to the Play Store",d:"Release a real application on the Google Play Store. Reaching 1,000 downloads demonstrates genuine user traction.",tags:["Play Store","Launch"]},
+        {m:"Month 6",t:"Portfolio & Job Applications",d:"Maintain 2–3 published apps, a clean GitHub profile, and an optimised LinkedIn presence before applying.",tags:["Portfolio","Applications"]}
+      ],
+      resources: [
+        {icon:"📱",type:"Free",n:"Flutter.dev — Official Docs",d:"The most comprehensive Flutter learning resource",url:"https://flutter.dev/learn"},
+        {icon:"🔥",type:"Free",n:"Firebase Documentation",d:"Backend infrastructure at no cost",url:"https://firebase.google.com"},
+        {icon:"💡",type:"Practice",n:"Flutter Challenges",d:"UI cloning challenges to sharpen your skills",url:"https://flutterchallenge.dev"},
+        {icon:"👥",type:"Community",n:"r/FlutterDev",d:"An active Flutter developer community",url:"https://reddit.com/r/FlutterDev"}
+      ]
+    },
+    mid: {
+      title: "Senior Mobile Developer",
+      desc: "Native performance, clean architecture, and the ability to lead mobile squads — these are the differentiators at the senior level. India has a significant shortage of engineers at this tier.",
+      entry: "₹18–28 LPA", exp: "₹30–55 LPA",
+      skills: [
+        {n:"Advanced Flutter",c:"#54c5f8",p:"Essential"},{n:"React Native",c:"#61dafb",p:"High Priority"},
+        {n:"Native Modules",c:"#f59e0b",p:"High Priority"},{n:"Performance Optimisation",c:"#7c3aed",p:"Essential"},
+        {n:"Mobile CI/CD",c:"#16a34a",p:"Medium"},{n:"App Architecture",c:"#f97316",p:"Essential"}
+      ],
+      timeline: [
+        {m:"Month 1",t:"Advanced Flutter & Clean Architecture",d:"Implement the BLoC pattern, Clean Architecture principles, and dependency injection at scale.",tags:["BLoC","Clean Architecture"]},
+        {m:"Month 2",t:"React Native Fundamentals",d:"Proficiency in both Flutter and React Native doubles your opportunities. RN can be learned to a working level in one month.",tags:["React Native","Expo"]},
+        {m:"Month 3",t:"Native Modules & Platform Integration",d:"Build Kotlin/Swift bridges, use platform channels, and integrate device-level native features.",tags:["Kotlin","Swift","Native Bridge"]},
+        {m:"Month 4",t:"Performance & Automated Testing",d:"Address app size, memory leaks, and render performance. Implement widget tests and integration test suites.",tags:["Performance","Testing"]},
+        {m:"Month 5",t:"CI/CD & App Store Optimisation",d:"Automate builds with Fastlane and improve your app's store rankings through ASO techniques.",tags:["Fastlane","CI/CD","ASO"]},
+        {m:"Month 6",t:"Senior Role Interviews",d:"Prepare for mobile system design discussions, leadership questions, and compensation negotiation.",tags:["Interview Prep","Leadership"]}
+      ],
+      resources: [
+        {icon:"⚛️",type:"Free",n:"ReactNative.dev",d:"Official React Native documentation",url:"https://reactnative.dev"},
+        {icon:"🚀",type:"Free",n:"Expo.dev",d:"The fastest way to get started with React Native",url:"https://expo.dev"},
+        {icon:"📊",type:"Practice",n:"GitHub Trending — Dart",d:"Explore top Flutter open source projects",url:"https://github.com/trending/dart"},
+        {icon:"💬",type:"Community",n:"Flutter Discord",d:"Direct access to experienced Flutter engineers",url:"https://discord.gg/flutter"}
+      ]
+    }
+  },
+  security: {
+    beginner: {
+      title: "Cybersecurity Analyst",
+      desc: "India faces a critical shortage of cybersecurity professionals. Ethical hacking skills open opportunities across government agencies, financial institutions, and technology companies.",
+      entry: "₹4–8 LPA", exp: "₹15–35 LPA",
+      skills: [
+        {n:"Linux & Networking",c:"#f59e0b",p:"Essential"},{n:"Ethical Hacking",c:"#dc2626",p:"Essential"},
+        {n:"Python Scripting",c:"#2563eb",p:"High Priority"},{n:"Kali Linux",c:"#7c3aed",p:"Essential"},
+        {n:"Web Application Security",c:"#dc2626",p:"High Priority"},{n:"OWASP Top 10",c:"#16a34a",p:"Essential"}
+      ],
+      timeline: [
+        {m:"Month 1",t:"Networking & Linux Fundamentals",d:"Study TCP/IP, the OSI model, and Linux command-line operations. These form the foundation of all security work.",tags:["Networking","Linux"]},
+        {m:"Month 2",t:"Kali Linux & Core Security Tools",d:"Work with Nmap, Wireshark, and Metasploit basics. The TryHackMe learning platform provides excellent structured practice.",tags:["Kali Linux","Nmap","Wireshark"]},
+        {m:"Month 3",t:"Web Application Security & OWASP",d:"Study SQL injection, XSS, CSRF, and IDOR vulnerabilities. PortSwigger Web Security Academy is a comprehensive free resource.",tags:["OWASP","XSS","SQL Injection"]},
+        {m:"Month 4",t:"Python for Security Automation",d:"Write automation scripts, network scanners, and basic exploit tools to develop a practical scripting skill set.",tags:["Python","Automation","Scripting"]},
+        {m:"Month 5",t:"CTF Competitions",d:"Participate in HackTheBox and TryHackMe Capture the Flag events. Publishing writeups builds your public portfolio.",tags:["CTF","HackTheBox"]},
+        {m:"Month 6",t:"Certification & Bug Bounty",d:"Prepare for the CEH or CompTIA Security+ certification. Register on HackerOne or Bugcrowd to begin earning through bug bounties.",tags:["CEH","Bug Bounty"]}
+      ],
+      resources: [
+        {icon:"🛡️",type:"Free Platform",n:"TryHackMe",d:"The most beginner-friendly cybersecurity learning platform",url:"https://tryhackme.com"},
+        {icon:"🕷️",type:"Free",n:"PortSwigger Web Academy",d:"Free, world-class web security labs",url:"https://portswigger.net/web-security"},
+        {icon:"📦",type:"Practice",n:"HackTheBox",d:"Real-world hacking challenges and labs",url:"https://hackthebox.com"},
+        {icon:"📋",type:"Free",n:"OWASP.org",d:"The definitive web application security standard",url:"https://owasp.org"}
+      ]
+    },
+    mid: {
+      title: "Senior Penetration Tester / Security Engineer",
+      desc: "Advanced penetration testing, red teaming, and security architecture are the capabilities that command ₹30L+ compensation. Senior security engineers are exceptionally scarce in India.",
+      entry: "₹20–35 LPA", exp: "₹40–80 LPA",
+      skills: [
+        {n:"Advanced Penetration Testing",c:"#dc2626",p:"Essential"},{n:"Red Teaming",c:"#f59e0b",p:"Essential"},
+        {n:"Reverse Engineering",c:"#7c3aed",p:"High Priority"},{n:"Cloud Security",c:"#2563eb",p:"High Priority"},
+        {n:"OSCP Certification",c:"#16a34a",p:"Essential"},{n:"Exploit Development",c:"#dc2626",p:"Medium"}
+      ],
+      timeline: [
+        {m:"Month 1",t:"Advanced Web & API Penetration Testing",d:"Study OAuth attack vectors, JWT vulnerabilities, and GraphQL security misconfigurations.",tags:["API Security","OAuth","JWT"]},
+        {m:"Month 2",t:"Active Directory Attacks",d:"Master Kerberoasting, Pass-the-Hash, and BloodHound-based enumeration in enterprise environments.",tags:["Active Directory","BloodHound","Enterprise"]},
+        {m:"Month 3",t:"Reverse Engineering",d:"Develop proficiency with Ghidra and x64dbg, and study malware analysis fundamentals. This is a rare and valuable skill.",tags:["Reverse Engineering","Ghidra","Malware Analysis"]},
+        {m:"Month 4",t:"Cloud Security",d:"Investigate IAM misconfigurations, S3 bucket vulnerabilities, and cloud-specific penetration testing methodologies.",tags:["Cloud Security","AWS","IAM"]},
+        {m:"Month 5",t:"OSCP Exam Preparation",d:"Work through OffSec's PWK course and complete 30 days of lab practice. OSCP remains the industry gold standard.",tags:["OSCP","OffSec","Certification"]},
+        {m:"Month 6",t:"Bug Bounty & Senior Job Search",d:"Submit active reports on HackerOne and Bugcrowd. Apply for senior security engineering and penetration testing roles.",tags:["Bug Bounty","HackerOne","Senior Roles"]}
+      ],
+      resources: [
+        {icon:"🏆",type:"Certification",n:"OSCP — Offensive Security",d:"The most respected penetration testing certification",url:"https://www.offsec.com"},
+        {icon:"📦",type:"Practice",n:"HackTheBox Pro",d:"Advanced machines, pro labs, and certifications",url:"https://hackthebox.com"},
+        {icon:"💰",type:"Free",n:"HackerOne",d:"The leading bug bounty and responsible disclosure platform",url:"https://hackerone.com"},
+        {icon:"🔍",type:"Free",n:"Exploit Database",d:"A comprehensive archive of real-world exploits",url:"https://exploit-db.com"}
+      ]
+    }
+  },
+  testing: {
+    beginner: {
+      title: "QA / Test Automation Engineer",
+      desc: "Automation testing demand is growing rapidly across India's IT sector. Transitioning from manual to automation with Selenium or Cypress can significantly accelerate your earning potential.",
+      entry: "₹3–6 LPA", exp: "₹8–18 LPA",
+      skills: [
+        {n:"Manual Testing",c:"#f59e0b",p:"Essential"},{n:"Selenium / Cypress",c:"#2563eb",p:"Essential"},
+        {n:"Python / Java",c:"#16a34a",p:"High Priority"},{n:"API Testing (Postman)",c:"#7c3aed",p:"Essential"},
+        {n:"SQL Basics",c:"#dc2626",p:"High Priority"},{n:"JIRA / Agile",c:"#f97316",p:"Medium"}
+      ],
+      timeline: [
+        {m:"Month 1",t:"Manual Testing Fundamentals",d:"Learn to write test cases, raise bug reports, and understand SDLC, STLC, and Agile methodologies.",tags:["Manual Testing","SDLC","Agile"]},
+        {m:"Month 2",t:"API Testing with Postman",d:"Test REST APIs with assertions and collections. Postman proficiency is expected in virtually every QA role today.",tags:["Postman","REST API","Testing"]},
+        {m:"Month 3",t:"Selenium WebDriver",d:"Write automated UI tests in Python or Java using the Page Object Model design pattern.",tags:["Selenium","Page Object Model","Python"]},
+        {m:"Month 4",t:"Cypress & Playwright",d:"Gain fluency with modern JavaScript-based test automation frameworks, which are now the industry standard.",tags:["Cypress","Playwright","JavaScript"]},
+        {m:"Month 5",t:"CI/CD Pipeline Integration",d:"Integrate your test suites into Jenkins or GitHub Actions pipelines for continuous testing.",tags:["Jenkins","GitHub Actions","CI/CD"]},
+        {m:"Month 6",t:"ISTQB Certification & Applications",d:"Obtain the ISTQB Foundation Level certification — it is internationally recognised and strengthens your CV.",tags:["ISTQB","Certification","Applications"]}
+      ],
+      resources: [
+        {icon:"⚡",type:"Free",n:"Cypress.io Documentation",d:"The leading modern test automation framework",url:"https://cypress.io"},
+        {icon:"📚",type:"Free Course",n:"Guru99 Testing",d:"Free manual and automation testing courses",url:"https://guru99.com/software-testing.html"},
+        {icon:"💻",type:"Practice",n:"The Internet — Heroku",d:"A dedicated Selenium practice application",url:"https://the-internet.herokuapp.com"},
+        {icon:"🏅",type:"Certification",n:"ISTQB Foundation",d:"The globally recognised software testing certification",url:"https://istqb.org"}
+      ]
+    },
+    mid: {
+      title: "Senior SDET / QA Lead",
+      desc: "Performance testing, mobile automation, and test strategy ownership are the hallmarks of a senior QA engineer. The SDET role is undervalued in India — with the right skills, the compensation reflects true market value.",
+      entry: "₹15–25 LPA", exp: "₹28–45 LPA",
+      skills: [
+        {n:"Performance Testing",c:"#f59e0b",p:"Essential"},{n:"Mobile Automation",c:"#2563eb",p:"High Priority"},
+        {n:"Test Architecture",c:"#7c3aed",p:"Essential"},{n:"k6 / JMeter",c:"#dc2626",p:"High Priority"},
+        {n:"Appium",c:"#16a34a",p:"Medium"},{n:"Security Testing",c:"#f97316",p:"Medium"}
+      ],
+      timeline: [
+        {m:"Month 1",t:"Test Framework Architecture",d:"Design scalable framework structures with a focus on reusability, maintainability, and clear reporting.",tags:["Test Architecture","Framework Design"]},
+        {m:"Month 2",t:"Performance & Load Testing",d:"Work with JMeter, k6, and Gatling to execute load, stress, and soak tests. Learn to interpret and report results.",tags:["JMeter","k6","Performance"]},
+        {m:"Month 3",t:"Mobile Test Automation",d:"Automate Android and iOS test scenarios using Appium with Selenium on physical and emulated devices.",tags:["Appium","Mobile Automation","Android"]},
+        {m:"Month 4",t:"Security & Accessibility Testing",d:"Use OWASP ZAP for security scanning and apply WCAG accessibility standards — rare skills that command a premium.",tags:["OWASP ZAP","Accessibility","WCAG"]},
+        {m:"Month 5",t:"AI-Augmented Testing",d:"Leverage AI co-pilots for test generation and explore self-healing test frameworks — this is the direction the industry is moving.",tags:["AI Testing","Self-Healing","Automation"]},
+        {m:"Month 6",t:"QA Lead Role Interviews",d:"Prepare for test strategy discussions, team management scenarios, and senior-level compensation negotiations.",tags:["Leadership","Strategy","Interview"]}
+      ],
+      resources: [
+        {icon:"🚀",type:"Free",n:"k6.io Documentation",d:"A modern, developer-friendly performance testing tool",url:"https://k6.io/docs"},
+        {icon:"📱",type:"Free",n:"Appium Documentation",d:"The standard framework for mobile test automation",url:"https://appium.io"},
+        {icon:"👥",type:"Community",n:"Ministry of Testing",d:"A global community of QA professionals",url:"https://ministryoftesting.com"},
+        {icon:"⚡",type:"Practice",n:"BlazeMeter",d:"Cloud-based performance testing practice environment",url:"https://blazemeter.com"}
+      ]
+    }
+  }
+};
+
+const goalNote = {
+  newjob: "Focus area: Strengthen your interview preparation and build a portfolio of projects that showcase your capabilities.",
+  hike: "Focus area: Deepen expertise in your current technology stack and develop leadership or mentoring experience.",
+  freelance: "Focus area: Build an international-quality portfolio and establish your presence on freelancing platforms.",
+  abroad: "Focus area: Pursue globally recognised certifications and refine your professional communication skills."
+};
+
+const timeLabels = { '30min': '30 min / day', '1hr': '1 hour / day', '2hr': '2+ hours / day', 'weekend': 'Weekends only' };
+
+function getData() {
+  const d = ans.domain || 'webdev';
+  const l = (ans.level === 'beginner' || ans.level === 'junior') ? 'beginner' : 'mid';
+  return (DB[d] && DB[d][l]) ? DB[d][l] : DB.webdev.beginner;
+}
+
+function showResult() {
+  document.getElementById('loading').classList.remove('active');
+  const d = getData();
+
+  const skills = d.skills.map(s =>
+    `<div class="skill-tag"><div class="skill-dot" style="background:${s.c}"></div>${s.n}<span class="skill-badge">${s.p}</span></div>`
+  ).join('');
+
+  const timeline = d.timeline.map(t =>
+    `<div class="t-item"><div class="t-dot"></div><div class="t-card">
+      <div class="t-month">${t.m}</div>
+      <div class="t-title">${t.t}</div>
+      <div class="t-detail">${t.d}</div>
+      <div class="t-tags">${t.tags.map(tag => `<span class="t-tag">${tag}</span>`).join('')}</div>
+    </div></div>`
+  ).join('');
+
+  const resources = d.resources.map((r, i) =>
+    `<a class="res-card" href="${r.url}" target="_blank" rel="noopener" style="animation-delay:${i * 0.08}s">
+      <div class="res-icon">${r.icon}</div>
+      <div class="res-body"><div class="res-type">${r.type}</div><div class="res-name">${r.n}</div><div class="res-desc">${r.d}</div></div>
+      <div class="res-arrow">→</div>
+    </a>`
+  ).join('');
+
+  document.getElementById('result').innerHTML = `
+    <div class="result-card accent-top">
+      <div class="result-eyebrow">Your Recommended Career Path</div>
+      <div class="result-role">${d.title}</div>
+      <div class="result-desc">${d.desc}</div>
+      <div class="salary-row">
+        <div class="sal-box"><div class="sal-label">Entry Level</div><div class="sal-val">${d.entry}</div></div>
+        <div class="sal-box"><div class="sal-label">Experienced</div><div class="sal-val">${d.exp}</div></div>
+        <div class="sal-box"><div class="sal-label">Your Commitment</div><div class="sal-val" style="color:#2563eb;font-size:15px">${timeLabels[ans.time] || '—'}</div></div>
+      </div>
+    </div>
+
+    <div class="result-card">
+      <div class="section-head">🎯 Priority Skills</div>
+      <div class="skills-wrap">${skills}</div>
+    </div>
+
+    <div class="result-card">
+      <div class="section-head">🗓️ Your 6-Month Roadmap</div>
+      <div class="timeline">${timeline}</div>
+    </div>
+
+    <div class="result-card">
+      <div class="section-head">📚 Recommended Free Resources</div>
+      <div class="resources">${resources}</div>
+    </div>
+
+    <div class="cta">
+      <h3>Your Roadmap is Ready</h3>
+      <p>${goalNote[ans.goal] || ''}<br><br>Consistency is the most important skill of all — make progress every day, and the results will follow over the next 6 months.</p>
+      <button class="btn-restart" onclick="location.reload()">← Start Over with a Different Path</button>
+    </div>`;
+
+  document.getElementById('result').style.display = 'block';
+  scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
